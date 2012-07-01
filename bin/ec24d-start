@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# Usage: ec24d-start app-name
+
+# Installation:
+# $ ec2-create-keypair --region eu-west-1 eu-pair > ~/.ec2/eu-pair.pem
+# $ ec2-authorize --region eu-west-1 default -p 22 -s 0.0.0.0/0
+# $ ec2-authorize --region eu-west-1 default -p 8080 -s 0.0.0.0/0
+# $ ec2-authorize --region eu-west-1 default -p 9418 -s 0.0.0.0/0
+# add Link to .ssh/config
+
+# Configuration
+AMI=ami-61555115
+TYPE=t1.micro
+KEYPAIR=eu-pair
+REGION=eu-west-1
+DIST=/srv/dist
+
+cat > userdata << EOF
+#!/bin/bash -ex
+cd /srv
+yum -y update
+
+sudo /bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=1024
+sudo /sbin/mkswap /var/swap.1
+sudo /sbin/swapon /var/swap.1
+
+yum -y install git-core
+yum -y install git-daemon
+yum -y install java-1.6.0-openjdk-devel
+curl http://download.playframework.org/releases/play-2.0.1.zip > /tmp/play-2.0.1.zip
+unzip -qq /tmp/play-2.0.1.zip
+
+mkdir /srv/repo
+cd /srv/repo
+git init --bare --shared
+touch git-daemon-export-ok
+mkdir ../dist
+cat > hooks/post-receive << POST
+#!/bin/sh
+GIT_WORK_TREE=$DIST git checkout -f
+cd $DIST
+echo "Checked out, starting install..."
+chmod u+x install.sh
+./install.sh
+POST
+chmod u+x hooks/post-receive
+git daemon --verbose --base-path=/srv/repo --enable=receive-pack 2>&1 > /var/log/git-daemon.log &
+
+chown -R ec2-user /srv/play-2.0.1
+chown -R ec2-user /srv/repo
+chown -R ec2-user /srv/dist
+EOF
+
+OUTPUT=$(ec2-run-instances --region $REGION $AMI -t $TYPE -k $KEYPAIR -f userdata)
+INSTANCE=$(echo "$OUTPUT" | awk '/^INSTANCE/ {print $2}')
+echo Created $INSTANCE
+OUTPUT=$(ec2-create-tags --region $REGION $INSTANCE --tag app=$1)
+echo Tagged as $1
+rm userdata

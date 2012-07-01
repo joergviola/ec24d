@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Usage: ec24d-stop app-name
+
+
+REGION=eu-west-1
+
+ec2-terminate-instances --region $REGION `ec24d-list $1`
