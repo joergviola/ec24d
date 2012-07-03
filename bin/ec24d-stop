@@ -1,8 +1,10 @@
 #!/bin/bash
 
-# Usage: ec24d-stop app-name
+# Usage: ec24d-stop
 
+. ./ec24d
 
-REGION=eu-west-1
+INSTANCES=`ec24d-list`
 
-ec2-terminate-instances --region $REGION `ec24d-list $1`
+elb-deregister-instances-from-lb  $ELB --region $REGION --instances $INSTANCES
+ec2-terminate-instances --region $REGION $INSTANCES

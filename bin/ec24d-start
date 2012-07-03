@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Usage: ec24d-start app-name
+# Usage: ec24d-start
 
 # Installation:
 # $ ec2-create-keypair --region eu-west-1 eu-pair > ~/.ec2/eu-pair.pem
@@ -10,10 +10,7 @@
 # add Link to .ssh/config
 
 # Configuration
-AMI=ami-61555115
-TYPE=t1.micro
-KEYPAIR=eu-pair
-REGION=eu-west-1
+. ./ec24d
 DIST=/srv/dist
 
 cat > userdata << EOF
@@ -21,9 +18,9 @@ cat > userdata << EOF
 cd /srv
 yum -y update
 
-sudo /bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=1024
-sudo /sbin/mkswap /var/swap.1
-sudo /sbin/swapon /var/swap.1
+/bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=1024
+/sbin/mkswap /var/swap.1
+/sbin/swapon /var/swap.1
 
 yum -y install git-core
 yum -y install git-daemon
@@ -52,9 +49,11 @@ chown -R ec2-user /srv/repo
 chown -R ec2-user /srv/dist
 EOF
 
-OUTPUT=$(ec2-run-instances --region $REGION $AMI -t $TYPE -k $KEYPAIR -f userdata)
+OUTPUT=$(ec2-run-instances --region $REGION $AMI -z $ZONE -t $TYPE -k $KEYPAIR -f userdata)
 INSTANCE=$(echo "$OUTPUT" | awk '/^INSTANCE/ {print $2}')
 echo Created $INSTANCE
-OUTPUT=$(ec2-create-tags --region $REGION $INSTANCE --tag app=$1)
-echo Tagged as $1
+OUTPUT=$(ec2-create-tags --region $REGION $INSTANCE --tag app=$APP)
+echo Tagged as $APP
+OUTPUT=$(elb-register-instances-with-lb $ELB --region $REGION --instances $INSTANCE)
+echo Load balanced by $ELB
 rm userdata

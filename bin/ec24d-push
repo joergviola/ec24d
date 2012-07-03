@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Usage: ec24d-push app-name
-REGION=eu-west-1
+# Usage: ec24d-push
+. ./ec24d
 
-git push git://`ec24d-names $1`/ master
+git push git://`ec24d-names $APP`/ master
