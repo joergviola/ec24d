@@ -7,9 +7,12 @@ Installation
 ------------
 
 Download the following Amazon toolsets:
+
 * EC2-Tools: http://aws.amazon.com/developertools/351
 * ELB-Tools: http://aws.amazon.com/developertools/2536 
+
 To install them, use something like this eg. in your profile:
+
 ```
 export EC2_PRIVATE_KEY=~/.ec2/pk-YOURKEY.pem
 export EC2_CERT=~/.ec2/cert-YOURKEY.pem
@@ -20,7 +23,9 @@ export PATH=$PATH:$EC2_HOME/bin
 export AWS_ELB_HOME=$HOME/ElasticLoadBalancing-1.0.17.0
 export PATH=$PATH:$AWS_ELB_HOME/bin
 ```
+
 Create a config file in your git root like the following:
+
 ```
 APP=<your app name>
 AMI=<your AMI, eg. ami-61555115>
