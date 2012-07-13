@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Usage: ec24d-upload
+. ./ec24d
+
+HOST=`ec24d-names`
+
+scp -i ~/.ec2/eu-pair.pem $1 ec2-user@$HOST:$2

@@ -3,4 +3,4 @@
 # Usage: ec24d-push
 . ./ec24d
 
-git push git://`ec24d-names $APP`/ master
+git push git://`ec24d-names`/ master

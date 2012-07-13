@@ -25,8 +25,6 @@ yum -y update
 yum -y install git-core
 yum -y install git-daemon
 yum -y install java-1.6.0-openjdk-devel
-curl http://download.playframework.org/releases/play-2.0.1.zip > /tmp/play-2.0.1.zip
-unzip -qq /tmp/play-2.0.1.zip
 
 mkdir /srv/repo
 cd /srv/repo
@@ -37,17 +35,21 @@ cat > hooks/post-receive << POST
 #!/bin/sh
 GIT_WORK_TREE=$DIST git checkout -f
 cd $DIST
-echo "Checked out, starting install..."
-chmod u+x install.sh
-./install.sh
+echo "Checked out, starting deploy..."
+chmod u+x deploy.sh
+./deploy.sh
 POST
 chmod u+x hooks/post-receive
 git daemon --verbose --base-path=/srv/repo --enable=receive-pack 2>&1 > /var/log/git-daemon.log &
 
-chown -R ec2-user /srv/play-2.0.1
 chown -R ec2-user /srv/repo
 chown -R ec2-user /srv/dist
 EOF
+if [ -f install.sh ]
+then
+	cat install.sh >> userdata
+fi
+
 
 OUTPUT=$(ec2-run-instances --region $REGION $AMI -z $ZONE -t $TYPE -k $KEYPAIR -f userdata)
 INSTANCE=$(echo "$OUTPUT" | awk '/^INSTANCE/ {print $2}')
