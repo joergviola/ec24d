@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Usage: ec24d-start
+# Usage: ec24d-start <app>
 
 # Installation:
 # $ ec2-create-keypair --region eu-west-1 eu-pair > ~/.ec2/eu-pair.pem
@@ -10,7 +10,8 @@
 # add Link to .ssh/config
 
 # Configuration
-. ./ec24d
+APP=$1
+. ./ec24d/config.sh $APP
 DIST=/srv/dist
 
 cat > userdata << EOF
@@ -18,13 +19,8 @@ cat > userdata << EOF
 cd /srv
 yum -y update
 
-/bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=1024
-/sbin/mkswap /var/swap.1
-/sbin/swapon /var/swap.1
-
 yum -y install git-core
 yum -y install git-daemon
-yum -y install java-1.6.0-openjdk-devel
 
 mkdir /srv/repo
 cd /srv/repo
@@ -36,8 +32,8 @@ cat > hooks/post-receive << POST
 GIT_WORK_TREE=$DIST git checkout -f
 cd $DIST
 echo "Checked out, starting deploy..."
-chmod u+x deploy.sh
-./deploy.sh
+chmod u+x ec24d/deploy.sh
+ec24d/deploy.sh
 POST
 chmod u+x hooks/post-receive
 git daemon --verbose --base-path=/srv/repo --enable=receive-pack 2>&1 > /var/log/git-daemon.log &
@@ -45,9 +41,9 @@ git daemon --verbose --base-path=/srv/repo --enable=receive-pack 2>&1 > /var/log
 chown -R ec2-user /srv/repo
 chown -R ec2-user /srv/dist
 EOF
-if [ -f install.sh ]
+if [ -f ec24d/install.sh ]
 then
-	cat install.sh >> userdata
+	cat ec24d/install.sh >> userdata
 fi
 
 

@@ -1,10 +1,11 @@
 #!/bin/bash
 
-# Usage: ec24d-stop
+# Usage: ec24d-stop <app>
 
-. ./ec24d
+APP=$1
+. ./ec24d/config.sh $APP
 
-INSTANCES=`ec24d-list`
+INSTANCES=`ec24d-list $APP`
 
 elb-deregister-instances-from-lb  $ELB --region $REGION --instances $INSTANCES
 ec2-terminate-instances --region $REGION $INSTANCES

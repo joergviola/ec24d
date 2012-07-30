@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# Usage: ec24d-list
-. ./ec24d
+# Usage: ec24d-list <app>
+APP=$1
+. ./ec24d/config.sh $APP
 
 OUTPUT=$(ec2-describe-instances --region $REGION -filter tag:app=$APP -filter instance-state-name=running)
 echo "$OUTPUT" | awk '/^INSTANCE/ {print $2}'

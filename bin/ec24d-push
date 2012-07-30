@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Usage: ec24d-push
-. ./ec24d
+# Usage: ec24d-push <app>
+APP=$1
+. ./ec24d/config.sh $APP
 
-git push git://`ec24d-names`/ master
+git push git://`ec24d-names $APP`/ master

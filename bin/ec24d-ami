@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Usage: ec24d-ami <ami> <app>
+APP=$2
+. ./ec24d/config.sh $APP
+AMI=$1
+
+echo "Starting instance: $AMI $TYPE..."
+OUTPUT=$(ec2-run-instances --region $REGION $AMI -z $ZONE -t $TYPE -k $KEYPAIR)
+INSTANCE=$(echo "$OUTPUT" | awk '/^INSTANCE/ {print $2}')
+echo Created instance: $HOST
+
+echo "Uploading AMI script..."
+scp -i ~/.ec2/$KEYPAIR.pem ec24d/ami.sh ec2-user@$HOST:ami.sh
+echo "Executing AMI script..."
+ssh -i ~/.ec2/$KEYPAIR.pem ec2-user@$HOST sudo ./ami.sh

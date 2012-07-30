@@ -1,8 +1,10 @@
 #!/bin/bash
 
-# Usage: ec24d-push
-. ./ec24d
+# Usage: ec24d-ssh <app>
+APP=$1
+. ./ec24d/config.sh $APP
 
-HOST=`ec24d-names`
+HOST=`ec24d-names $APP`
+shift 1
 
-ssh -i ~/.ec2/eu-pair.pem ec2-user@$HOST $*
+ssh -i ~/.ec2/$KEYPAIR.pem ec2-user@$HOST $*
