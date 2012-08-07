@@ -33,7 +33,7 @@ GIT_WORK_TREE=$DIST git checkout -f
 cd $DIST
 echo "Checked out, starting deploy..."
 chmod u+x ec24d/deploy.sh
-ec24d/deploy.sh
+ec24d/deploy.sh $APP
 POST
 chmod u+x hooks/post-receive
 git daemon --verbose --base-path=/srv/repo --enable=receive-pack 2>&1 > /var/log/git-daemon.log &
