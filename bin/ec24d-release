@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Usage: ec24d-release <from> <to> <tag>
+
+FROM=$1
+TO=$2
+TAG=$3
+
+git checkout $TO
+git merge --no-ff $FROM
+git tag -a $TAG -m "Release"
+git push origin $TO
+git push --tags origin $TO
+git checkout $FROM
