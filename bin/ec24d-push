@@ -4,4 +4,4 @@
 APP=$1
 . ./ec24d/config.sh $APP
 
-git push git://`ec24d-names $APP`/ master
+git push git://`ec24d-names $APP`/ $BRANCH:master
