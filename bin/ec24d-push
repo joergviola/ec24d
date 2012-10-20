@@ -4,4 +4,15 @@
 APP=$1
 . ./ec24d/config.sh $APP
 
-git push git://`ec24d-names $APP`/ $BRANCH:master
+DATE=`date +"%y%m%d%H%M%S"`
+echo "Deploying $DATE"
+
+HOSTS=`ec24d-names $APP`
+T="$(date +%s)"
+for HOST in $HOSTS
+do
+	(echo "Start $HOST";git push git://$HOST/ $BRANCH:master > logs/deploy-$DATE-$HOST.log 2>&1; tail logs/deploy-$DATE-$HOST.log; echo "Stop $(($(date +%s)-T)) secs: logs/deploy-$DATE-$HOST.log") &
+done
+
+wait
+echo "Ready $DATE"
