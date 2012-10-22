@@ -4,7 +4,7 @@
 APP=$1
 . ./ec24d/config.sh $APP
 
-HOST=`ec24d-names $APP`
+HOST=`ec24d-names $APP  | head -1`
 shift 1
 
 ssh -i ~/.ec2/$KEYPAIR.pem ec2-user@$HOST $*

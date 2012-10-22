@@ -4,6 +4,6 @@
 APP=$1
 . ./ec24d/config.sh $APP
 
-HOST=`ec24d-names $APP`
+HOST=`ec24d-names $APP | head -1`
 
 scp -i ~/.ec2/$KEYPAIR.pem $2 ec2-user@$HOST:$3

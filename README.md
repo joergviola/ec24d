@@ -49,4 +49,3 @@ Pushes the current git repo to the named app.
 `ec24d-ssh [cmd]`
 Peformes ssh on (one node of?) the named app. 
 
- 
